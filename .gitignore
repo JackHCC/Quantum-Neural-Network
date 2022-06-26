@@ -1,0 +1,6 @@
+.idea/
+.DS_Store
+__pycache__
+data/T91
+demo.py
+result/*.png
