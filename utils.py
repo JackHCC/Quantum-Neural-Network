@@ -11,6 +11,8 @@
 
 import time
 import numpy as np
+import os
+from PIL import Image
 
 
 def f(input_data):
@@ -51,4 +53,39 @@ def get_runtime(fn):
         print("程序运行时间: {} s".format(end_time - start_time))
         return results
     return wrapper
+
+
+def read_gray_img(path):
+    g = Image.open(path, mode="r")
+    return g
+
+
+def read_gray_img_as_matrix(path):
+    g = Image.open(path, mode="r")
+    G = np.array(g)
+    return G
+
+
+def cal_metrix_for_dir(ori_dir, pred_dir, method, img_type="metrix"):
+    """
+    ori_dir: 原图像目录
+    pred_dir: 预测图像目录
+    method: 指标计算函数
+    """
+    ori_dir_list = os.listdir(ori_dir)
+    ori_dir_list = [file for file in ori_dir_list if file.split(".")[-1] in ["bmp", "jpg", "png", "raw", "jpeg"]]
+    pred_dir_list = os.listdir(pred_dir)
+    pred_dir_list = [file for file in pred_dir_list if file.split(".")[-1] in ["bmp", "jpg", "png", "raw", "jpeg"]]
+    l = len(ori_dir_list)
+    metrix = 0
+    for ori_img, pred_img in zip(ori_dir_list, pred_dir_list):
+        if img_type == "metrix":
+            ori = read_gray_img_as_matrix(ori_dir + ori_img)
+            pred = read_gray_img_as_matrix(pred_dir + pred_img)
+        else:
+            ori = read_gray_img(ori_dir + ori_img)
+            pred = read_gray_img(pred_dir + pred_img)
+        value = method(ori, pred)
+        metrix += value
+    return metrix / l
 

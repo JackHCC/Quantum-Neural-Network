@@ -7,7 +7,7 @@
 
 | Model |                            Paper                             | Code |
 | :---: | :----------------------------------------------------------: | :--: |
-| QINN  | [Method of computer-generated hologram compression and transmission using quantum back-propagation neural network](http://opticalengineering.spiedigitallibrary.org/article.aspx?doi=10.1117/1.OE.56.2.023104) | [Link](heuristic_quantum_neural_network.py) |
+| QINN  | [Method of computer-generated hologram compression and transmission using quantum back-propagation neural network](http://opticalengineering.spiedigitallibrary.org/article.aspx?doi=10.1117/1.OE.56.2.023104) | [Link](qinn_scratch.py) |
 | QICNN | [Quantum-inspired complex convolutional neural networks](https://link.springer.com/content/pdf/10.1007/s10489-022-03525-0.pdf) | Link |
 
 

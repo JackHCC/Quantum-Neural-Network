@@ -4,3 +4,5 @@ __pycache__
 data/T91
 demo.py
 result/*.png
+model/
+log/

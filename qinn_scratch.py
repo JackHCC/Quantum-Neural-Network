@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 '''
 @Project :Quantum-Neural-Network 
-@File    :heuristic_quantum_neural_network.py
+@File    :qinn_scratch.py
 @Author  :JackHCC
 @Date    :2022/6/20 10:54 
 @Desc    :Ab initio implementation of classical neural networks and quantum heuristic compressed neural networks
