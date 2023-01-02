@@ -69,11 +69,24 @@ class MLPCompress(nn.Module):
         self.model = nn.Sequential(
             nn.Linear(self.in_unit, self.hidden_unit),
             nn.ReLU(inplace=True),
-            # nn.Linear(self.hidden_unit, self.hidden_unit),
-            # nn.ReLU(inplace=True),
+            nn.Linear(self.hidden_unit, self.hidden_unit),
+            nn.ReLU(inplace=True),
             nn.Linear(self.hidden_unit, self.out_unit),
             nn.ReLU(inplace=True)
         )
+
+        self.initialize_weights()
+
+    def initialize_weights(self):
+        for m in self.model.modules():
+            if isinstance(m, nn.Conv2d):
+                torch.nn.init.xavier_normal(m.weight.data)
+            elif isinstance(m, nn.BatchNorm2d):
+                m.weight.data.fill_(1)
+                m.bias.data.zero_()
+            elif isinstance(m, nn.Linear):
+                torch.nn.init.normal(m.weight.data, 0, 0.5)
+                m.bias.data.zero_()
 
     def forward(self, X):
         assert len(X.shape) == 4  # (bs, c, w, h)
@@ -94,14 +107,15 @@ class MLPCompress(nn.Module):
 
 
 if __name__ == "__main__":
-    data_path = "./data/Set5/Set5_size_64/"
+    # data_path = "./data/Set5/Set5_size_64/"
+    data_path = "./data/One_Shot/pix64/"
     save_model_path = "./model/"
     if not os.path.exists(save_model_path):
         os.makedirs(save_model_path)
 
-    block_size = 2
+    block_size = 8
     batch_size = 1
-    epochs = 500
+    epochs = 200
 
     scale = 2
 
@@ -111,10 +125,10 @@ if __name__ == "__main__":
     model = MLPCompress(block_shape=(block_size, block_size), scale=scale)
     model.to(DEVICE)
 
-    optimizer = optim.Adam(model.parameters(), lr=5e-2)
+    optimizer = optim.Adam(model.parameters(), lr=0.05)
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=500, gamma=1)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.5)
-    loss_func = nn.MSELoss(size_average=False)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
+    loss_func = nn.MSELoss()
 
     model.train()
     train_loss = 0
@@ -136,7 +150,7 @@ if __name__ == "__main__":
             optimizer.step()
         scheduler.step()
         avg_loss = train_loss / len(train_loader.dataset)
-        print('====> Epoch: {} Average loss: {:.4f}'.format(epoch, avg_loss))
+        print('====> Epoch: {} Average loss: {:.16+-f}'.format(epoch, avg_loss))
 
         # Save the best model
         if avg_loss < best_loss:
@@ -145,9 +159,12 @@ if __name__ == "__main__":
 
     print("Begin Predict ...")
 
-    data_path = "./data/Set5/Set5_size_64/"
+    # data_path = "./data/Set5/Set5_size_64/"
 
     pred_path = "./result/" + data_path.split("/")[-2] + "/"
+    if not os.path.exists(pred_path):
+        os.makedirs(pred_path)
+
     test_dataset = DataFactory(data_path)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
 

@@ -329,7 +329,8 @@ class HeuristicQuantumMLPCompress:
 
 if __name__ == "__main__":
     # img_path = "./data/Set5/GTmod12/butterfly.png"
-    img_path = "./data/Set5/GTmod12/bird.png"
+    # img_path = "./data/Set5/GTmod12/bird.png"
+    img_path = "./data/Set5/Set5_size_64/butterfly.bmp"
     # img_path = "./data/lena.bmp"
     raw_img = read_img(img_path)
     H, W = raw_img.shape
@@ -338,19 +339,19 @@ if __name__ == "__main__":
     # print(raw_img)
     print(raw_img.shape)
 
-    K = 8
-    hide_num = 16
+    K = 4
+    hide_num = 8
     block_img = block_divide(raw_img, K)
     print(block_img.shape)
 
     img = block_recon(block_img, K)
     print(img.shape)
 
-    # MLP = ClassicalMLPCompress(raw_img, K=K, hidden_num=hide_num)
-    # out_img = MLP.output
+    MLP = ClassicalMLPCompress(raw_img, K=K, hidden_num=hide_num, epochs=1000)
+    out_img = MLP.output
 
-    QuantumMLP = HeuristicQuantumMLPCompress(raw_img, K=K, hidden_num=hide_num)
-    out_img = QuantumMLP.output
+    # QuantumMLP = HeuristicQuantumMLPCompress(raw_img, K=K, hidden_num=hide_num, epochs=1000)
+    # out_img = QuantumMLP.output
 
     p = compare_psnr(raw_img, out_img)
     # 对于多通道图像(RGB、HSV等)关键词multichannel要设置为True
