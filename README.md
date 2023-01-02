@@ -36,6 +36,6 @@ pip install requirements.txt
 ### Run
 
 ```
-python heuristic_quantum_neural_network.py
+python qinn_scratch.py
 ```
 
