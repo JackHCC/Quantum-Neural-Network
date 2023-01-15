@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 '''
 @Project :Quantum-Neural-Network 
-@File    :mlp_pytorch.py
+@File    :mlp.py
 @Author  :JackHCC
 @Date    :2023/1/2 12:18 
 @Desc    :
@@ -108,14 +108,14 @@ class MLPCompress(nn.Module):
 
 if __name__ == "__main__":
     # data_path = "./data/Set5/Set5_size_64/"
-    data_path = "./data/One_Shot/pix64/"
+    data_path = "./data/One_Shot/pix512/"
     save_model_path = "./model/"
     if not os.path.exists(save_model_path):
         os.makedirs(save_model_path)
 
-    block_size = 8
+    block_size = 64
     batch_size = 1
-    epochs = 200
+    epochs = 40
 
     scale = 2
 
@@ -125,9 +125,11 @@ if __name__ == "__main__":
     model = MLPCompress(block_shape=(block_size, block_size), scale=scale)
     model.to(DEVICE)
 
-    optimizer = optim.Adam(model.parameters(), lr=0.05)
+    optimizer = optim.Adam(model.parameters(), lr=0.1)
+    # optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=500, gamma=1)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.8)
+    # loss_func = nn.MSELoss(size_average=False)
     loss_func = nn.MSELoss()
 
     model.train()
@@ -150,7 +152,7 @@ if __name__ == "__main__":
             optimizer.step()
         scheduler.step()
         avg_loss = train_loss / len(train_loader.dataset)
-        print('====> Epoch: {} Average loss: {:.16+-f}'.format(epoch, avg_loss))
+        print('====> Epoch: {} Average loss: {:.16f}'.format(epoch, avg_loss))
 
         # Save the best model
         if avg_loss < best_loss:
@@ -166,7 +168,7 @@ if __name__ == "__main__":
         os.makedirs(pred_path)
 
     test_dataset = DataFactory(data_path)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
 
     model.eval()
 

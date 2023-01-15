@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 '''
 @Project :Quantum-Neural-Network 
-@File    :qinn_scratch.py
+@File    :iqnn_scratch.py
 @Author  :JackHCC
 @Date    :2022/6/20 10:54 
 @Desc    :Ab initio implementation of classical neural networks and quantum heuristic compressed neural networks
@@ -330,7 +330,7 @@ class HeuristicQuantumMLPCompress:
 if __name__ == "__main__":
     # img_path = "./data/Set5/GTmod12/butterfly.png"
     # img_path = "./data/Set5/GTmod12/bird.png"
-    img_path = "./data/Set5/Set5_size_64/butterfly.bmp"
+    img_path = "./data/Set5/Set5_size_512/butterfly.bmp"
     # img_path = "./data/lena.bmp"
     raw_img = read_img(img_path)
     H, W = raw_img.shape
