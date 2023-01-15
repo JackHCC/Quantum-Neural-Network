@@ -117,12 +117,13 @@ class EasyQICNN(nn.Module):
             self,
             in_channels: int,
             out_channels: int,
+            scale=2
     ):
         super(EasyQICNN, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
 
-        self.qiconv_1 = QIConv2D(in_channels, 1, 3, 2, 1)
+        self.qiconv_1 = QIConv2D(in_channels, 1, 3, scale, 1)
 
         # deconv 尺寸计算：https://blog.csdn.net/hhhhhhhhhhwwwwwwwwww/article/details/113772349
         self.deconv_1 = nn.ConvTranspose2d(1, 1, 3, 2, 1, 1)
@@ -151,6 +152,7 @@ class ComQICNN(nn.Module):
             self,
             in_channels: int,
             out_channels: int,
+            scale=2
     ):
         super(ComQICNN, self).__init__()
         self.in_channels = in_channels
@@ -158,7 +160,7 @@ class ComQICNN(nn.Module):
 
         self.qiconv_1 = QIConv2D(in_channels, 32, 3, 1, 1)
         self.qiconv_2 = QIConv2D(32, 32, 3, 1, 1)
-        self.qiconv_3 = QIConv2D(32, 1, 3, 2, 1)
+        self.qiconv_3 = QIConv2D(32, 1, 3, scale, 1)
 
         # deconv 尺寸计算：https://blog.csdn.net/hhhhhhhhhhwwwwwwwwww/article/details/113772349
         self.deconv_1 = nn.ConvTranspose2d(1, 1, 3, 2, 1, 1)
@@ -204,8 +206,8 @@ if __name__ == "__main__":
     scale = 2
     loss_threshold = 1e-5
 
-    # model = ComQICNN(1, 1)
-    model = EasyQICNN(1, 1)
+    # model = ComQICNN(1, 1, scale)
+    model = EasyQICNN(1, 1, scale)
     model.to(DEVICE)
 
     save_path = save_model_path + str(model) + ".pth"
