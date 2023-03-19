@@ -6,3 +6,4 @@ demo.py
 result/*.png
 model/
 log/
+result/
