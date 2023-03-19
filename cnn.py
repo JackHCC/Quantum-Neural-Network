@@ -8,7 +8,6 @@
 @Desc    :
 
 '''
-from torch.functional import F
 import torch
 from torch import nn, optim
 from torch.autograd import Variable
@@ -19,7 +18,7 @@ import os
 import time
 import numpy as np
 
-from utils import cal_metrix_for_dir, read_gray_img_as_matrix
+from utils import read_gray_img_as_matrix
 
 from skimage.metrics import mean_squared_error as compare_mse
 from skimage.metrics import peak_signal_noise_ratio as compare_psnr
@@ -77,14 +76,14 @@ class BlockDataset(Dataset):
         return self.sample_num
 
 
-class EasyCNN(nn.Module):
+class CNN(nn.Module):
     def __init__(
             self,
             in_channels: int,
             out_channels: int,
             scale=2
     ):
-        super(EasyCNN, self).__init__()
+        super(CNN, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
 
@@ -109,7 +108,7 @@ class EasyCNN(nn.Module):
         return rec_img
 
     def __repr__(self):
-        return "EasyCNN"
+        return "CNN"
 
 
 if __name__ == "__main__":
@@ -117,21 +116,24 @@ if __name__ == "__main__":
     is_train = True
     is_eval = True
 
-    data_path = "./data/One_Shot/pix256/butterfly.bmp"
+    img_size = 512
+    img_name = "butterfly.bmp"
+    data_path = "./data/Set5/Set5_size_" + str(img_size) + "/" + img_name
     save_model_path = "./model/"
     if not os.path.exists(save_model_path):
         os.makedirs(save_model_path)
 
     block_size = 8
     batch_size = 1
-    epochs = 100
+    epochs = 200
     scale = 2
     loss_threshold = 1e-5
 
-    model = EasyCNN(1, 1, scale)
+    model = CNN(1, 1, scale)
     model.to(DEVICE)
 
-    save_path = save_model_path + str(model) + ".pth"
+    save_path = save_model_path + str(model) + "_" + str(epochs) + "_" + str(img_size) + "_" + str(
+        block_size) + "_" + str(scale) + ".pth"
 
     raw_img = read_gray_img_as_matrix(data_path)
 
@@ -141,10 +143,9 @@ if __name__ == "__main__":
 
         optimizer = optim.Adam(model.parameters(), lr=0.01)
         # optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
-        # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=500, gamma=1)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.5)
-        # loss_func = nn.MSELoss(size_average=False)
-        loss_func = nn.MSELoss()
+        loss_func = nn.MSELoss(size_average=False)
+        # loss_func = nn.MSELoss()
 
         model.train()
         train_loss = 0
@@ -177,7 +178,8 @@ if __name__ == "__main__":
     if is_eval:
         print("Begin Predict ...")
 
-        pred_path = "./result/" + data_path.split("/")[-2] + "/"
+        pred_path = "./result/" + str(model) + "_" + str(epochs) + "_" + str(img_size) + "_" + str(
+            block_size) + "_" + str(scale) + "/"
         if not os.path.exists(pred_path):
             os.makedirs(pred_path)
 
@@ -204,7 +206,7 @@ if __name__ == "__main__":
 
         img = Image.fromarray(rec_img)
         img.show()
-        img.save(pred_path + str(model) + "_rec.bmp")
+        img.save(pred_path + img_name + "_rec.bmp")
 
         mean_mse = compare_mse(raw_img, rec_img)
         mean_psnr = compare_psnr(raw_img, rec_img)
@@ -217,8 +219,8 @@ if __name__ == "__main__":
 
         record_path = "./log/record_" + str(model) + ".txt"
         now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-        line = str(now) + " -- " + str(model) + " -- " + str(
-            scale) + " -- " + str(mean_mse) + " -- " + str(mean_psnr) + " -- " + str(
+        line = str(now) + " -- " + img_name + " -- " + str(model) + " -- " + str(img_size) + " -- " + str(
+            block_size) + " -- " + str(scale) + " -- " + str(mean_mse) + " -- " + str(mean_psnr) + " -- " + str(
             mean_ssim) + "\n"
 
         # 指标写入文件
