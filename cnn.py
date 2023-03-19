@@ -119,7 +119,7 @@ if __name__ == "__main__":
     img_size = 512
     img_name = "butterfly.bmp"
     data_path = "./data/Set5/Set5_size_" + str(img_size) + "/" + img_name
-    save_model_path = "./model/"
+    save_model_path = "./model/" + img_name.split(".")[0] + "/"
     if not os.path.exists(save_model_path):
         os.makedirs(save_model_path)
 
