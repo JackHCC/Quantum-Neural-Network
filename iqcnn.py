@@ -161,7 +161,7 @@ class QICNN(nn.Module):
         self.qiconv_1 = QIConv2D(in_channels, 1, 3, scale, 1)
 
         # deconv 尺寸计算：https://blog.csdn.net/hhhhhhhhhhwwwwwwwwww/article/details/113772349
-        self.deconv_1 = nn.ConvTranspose2d(1, 1, 3, 2, 1, 1)
+        self.deconv_1 = nn.ConvTranspose2d(1, 1, scale + 1, scale, 1, 1)
         self.conv_2 = QIConv2D(1, out_channels, 3, 1, 1)
 
     def encoder(self, x):
@@ -197,8 +197,8 @@ if __name__ == "__main__":
 
     block_size = 8
     batch_size = 1
-    epochs = 10
-    scale = 2
+    epochs = 200
+    scale = 4
     loss_threshold = 1e-5
 
     # model = MixQICNN(1, 1, scale)
