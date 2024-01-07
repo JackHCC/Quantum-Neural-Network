@@ -60,8 +60,19 @@ def read_gray_img(path):
     return g
 
 
+def read_raw_img(path):
+    g = Image.open(path)
+    return g
+
+
 def read_gray_img_as_matrix(path):
     g = Image.open(path, mode="r")
+    G = np.array(g)
+    return G
+
+
+def read_raw_img_as_matrix(path):
+    g = Image.open(path)
     G = np.array(g)
     return G
 
@@ -89,3 +100,11 @@ def cal_metrix_for_dir(ori_dir, pred_dir, method, img_type="metrix"):
         metrix += value
     return metrix / l
 
+
+
+if __name__ == "__main__":
+    path = "./data/Set5/size_64/butterfly.bmp"
+    img = read_raw_img(path)
+    img_arr = read_raw_img_as_matrix(path)
+    print(img_arr.shape)
+    img.show()

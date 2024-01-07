@@ -21,8 +21,8 @@ import os
 import time
 import numpy as np
 
-from utils import read_gray_img_as_matrix
-from mlp_block import block_recon, BlockDataset
+from utils import read_gray_img_as_matrix, read_raw_img_as_matrix
+from mlp_block import block_recon, block_recon_3D, BlockDataset
 
 from skimage.metrics import mean_squared_error as compare_mse
 from skimage.metrics import peak_signal_noise_ratio as compare_psnr
@@ -143,17 +143,19 @@ if __name__ == "__main__":
     # param
     is_train = True
     is_eval = True
+    gray = False
 
     img_size = 512
     img_name = "butterfly.bmp"
-    data_path = "./data/Set5/Set5_size_" + str(img_size) + "/" + img_name
+    # data_path = "./data/Set5/Set5_size_" + str(img_size) + "/" + img_name
+    data_path = "./data/Set5/size_" + str(img_size) + "/" + img_name
     save_model_path = "./model/" + img_name.split(".")[0] + "/"
     if not os.path.exists(save_model_path):
         os.makedirs(save_model_path)
 
     block_size = 8
-    batch_size = 2
-    epochs = 200
+    batch_size = 4
+    epochs = 2
     scale = 2
     loss_threshold = 1e-5
 
@@ -166,10 +168,10 @@ if __name__ == "__main__":
     save_path = save_model_path + str(model) + "_" + str(epochs) + "_" + str(img_size) + "_" + str(
         block_size) + "_" + str(scale) + ".pth"
 
-    raw_img = read_gray_img_as_matrix(data_path)
+    raw_img = read_gray_img_as_matrix(data_path) if gray else read_raw_img_as_matrix(data_path)
 
     if is_train:
-        train_dataset = BlockDataset(data_path, block_size)
+        train_dataset = BlockDataset(data_path, block_size, gray)
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
 
         optimizer = optim.Adam(model.parameters(), lr=0.01)
@@ -213,7 +215,7 @@ if __name__ == "__main__":
         if not os.path.exists(pred_path):
             os.makedirs(pred_path)
 
-        test_dataset = BlockDataset(data_path, block_size)
+        test_dataset = BlockDataset(data_path, block_size, gray)
         test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=2)
 
         model.load_state_dict(torch.load(save_path))
@@ -231,7 +233,7 @@ if __name__ == "__main__":
                 idx += 1
 
         rec_img = rec_img.mul(255).clamp(0, 255).byte().cpu().numpy()
-        rec_img = block_recon(rec_img, block_size)
+        rec_img = block_recon(rec_img, block_size) if gray else block_recon_3D(rec_img, block_size)
 
         rec_img = rec_img.astype(np.uint8)
 
@@ -241,7 +243,7 @@ if __name__ == "__main__":
 
         mean_mse = compare_mse(raw_img, rec_img)
         mean_psnr = compare_psnr(raw_img, rec_img)
-        mean_ssim = compare_ssim(raw_img, rec_img)
+        mean_ssim = compare_ssim(raw_img, rec_img, multichannel=not gray)
 
         print("MSE: ", mean_mse)
         print("PSNR: ", mean_psnr)
